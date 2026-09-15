@@ -1,0 +1,508 @@
+body:has(.lobby-world) {
+  background: #030a18;
+}
+.game-hud {
+  height: 68px;
+  background: #07142bd9;
+  border-bottom: 1px solid #284d72;
+  box-shadow: 0 6px 24px #02071688;
+}
+.hud-nav {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.hud-nav a {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 12px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  color: #95acc8;
+  font: 700 10px Manrope;
+  letter-spacing: 0.8px;
+}
+.hud-nav a.router-link-active,
+.hud-nav a:hover {
+  background: #102847;
+  border-color: #315f80;
+  color: #86efd4;
+}
+.hud-level {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #f2d571;
+  font: 700 10px Manrope;
+  letter-spacing: 0.7px;
+  background: #182544;
+  border: 1px solid #4c5069;
+  padding: 8px 10px;
+  border-radius: 8px;
+}
+.hud-level b {
+  color: #fff;
+  font-family: "DM Mono";
+  font-size: 12px;
+}
+.lobby-world {
+  min-height: calc(100vh - 68px);
+  padding: 1px 0 70px;
+  background:
+    radial-gradient(circle at 30% 0%, #163d68 0, transparent 33%),
+    radial-gradient(circle at 90% 35%, #1e3c61 0, transparent 27%), #030a18;
+}
+.lobby-top {
+  height: 72px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.player-panel {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+}
+.avatar-orb {
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #79e9cf, #3d6be3);
+  border: 2px solid #d5f9ed;
+  color: #0a2640;
+  font-weight: 800;
+}
+.player-panel small,
+.player-panel span {
+  display: block;
+  color: #7693b3;
+  font: 9px "DM Mono";
+  letter-spacing: 1px;
+}
+.player-panel b {
+  display: block;
+  margin: 3px 0;
+  color: #eaf7ff;
+  font-size: 12px;
+}
+.safety-pill {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  border: 1px solid #477c83;
+  background: #0a2f3a;
+  color: #86ead2;
+  border-radius: 20px;
+  padding: 8px 12px;
+  font: 700 10px Manrope;
+  letter-spacing: 0.6px;
+}
+.game-map {
+  height: 510px;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid #315779;
+  border-radius: 24px;
+  background: linear-gradient(125deg, #0a2c4a, #102855 55%, #161b4d);
+  box-shadow: 0 28px 50px #0007;
+}
+.map-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(#81ead111 1px, transparent 1px),
+    linear-gradient(90deg, #81ead111 1px, transparent 1px);
+  background-size: 42px 42px;
+  mask-image: radial-gradient(circle at 50% 45%, #000 15%, transparent 72%);
+}
+.map-copy {
+  position: absolute;
+  left: clamp(28px, 5vw, 72px);
+  top: 76px;
+  max-width: 410px;
+  z-index: 2;
+}
+.map-copy h1 {
+  font: 700 clamp(34px, 4vw, 58px)/0.98 "Playfair Display";
+  letter-spacing: -2px;
+  color: #fff4cb;
+  margin: 15px 0;
+}
+.map-copy p:not(.eyebrow) {
+  font-size: 14px;
+  line-height: 1.75;
+  color: #b8cce3;
+}
+.quest-button {
+  margin-top: 25px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 320px;
+  padding: 11px 14px;
+  background: #64dcc1;
+  color: #08223b;
+  border: 2px solid #c6ffea;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px #5de0c13b;
+}
+.quest-button small,
+.quest-button b {
+  display: block;
+}
+.quest-button small {
+  font: 9px "DM Mono";
+  letter-spacing: 1px;
+}
+.quest-button b {
+  font-size: 12px;
+}
+.quest-button svg {
+  margin-left: auto;
+}
+.quest-glyph {
+  display: grid;
+  place-items: center;
+  width: 35px;
+  height: 35px;
+  border-radius: 9px;
+  background: #0d4760;
+  color: #fff;
+  font-size: 21px;
+}
+.map-tables {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+.map-table {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 120px;
+  height: 88px;
+  border-radius: 48% 48% 42% 42%;
+  background: radial-gradient(circle, #317264, #123b52 62%, #071d38 64%);
+  border: 2px solid #7cebd1;
+  color: #ecfff8;
+  text-align: center;
+  box-shadow: 0 12px 17px #0008;
+  transition: 0.2s;
+}
+.map-table:hover {
+  transform: translateY(-8px) scale(1.06);
+  filter: brightness(1.15);
+}
+.map-table.locked {
+  filter: saturate(0.5);
+  opacity: 0.68;
+  cursor: default;
+}
+.map-table b {
+  font-size: 11px;
+  max-width: 90px;
+}
+.map-table small {
+  color: #9bf0dd;
+  font: 8px "DM Mono";
+  margin-top: 4px;
+}
+.map-table svg {
+  position: absolute;
+  right: 12px;
+  top: 11px;
+  color: #f5d469;
+}
+.map-icon {
+  font-size: 22px;
+  color: #ffe380;
+}
+.table-glow {
+  position: absolute;
+  inset: -13px;
+  border: 1px solid #83efd933;
+  border-radius: 50%;
+  animation: tablePulse 2.6s ease-in-out infinite;
+}
+.table-slots {
+  right: 9%;
+  top: 58px;
+}
+.table-baccarat {
+  right: 28%;
+  top: 85px;
+}
+.table-blackjack {
+  right: 12%;
+  top: 210px;
+  width: 142px;
+  height: 104px;
+  background: radial-gradient(circle, #317b66, #174753 60%, #081d38 63%);
+}
+.table-roulette {
+  right: 35%;
+  top: 270px;
+}
+.table-sicbo {
+  right: 6%;
+  bottom: 44px;
+}
+.table-mahjong {
+  right: 27%;
+  bottom: 45px;
+}
+@keyframes tablePulse {
+  50% {
+    inset: -20px;
+    opacity: 0.15;
+  }
+}
+.map-compass {
+  position: absolute;
+  left: 72px;
+  bottom: 45px;
+  display: grid;
+  gap: 3px;
+  color: #8ba7c6;
+  font: 9px "DM Mono";
+  letter-spacing: 1px;
+}
+.map-compass span {
+  font-size: 25px;
+  color: #73e5ca;
+}
+.map-compass b {
+  color: #dceefa;
+  font-size: 10px;
+}
+.mission-strip {
+  display: grid;
+  grid-template-columns: 64px 1fr 1.25fr 46px;
+  gap: 20px;
+  align-items: center;
+  margin-top: 18px;
+  padding: 18px 24px;
+  border: 1px solid #355a7b;
+  border-radius: 15px;
+  background: linear-gradient(90deg, #0c2844, #152855);
+}
+.mission-index {
+  font: 700 27px "DM Mono";
+  color: #63e1c5;
+}
+.mission-strip small {
+  color: #7ee1cb;
+  font: 9px "DM Mono";
+  letter-spacing: 1px;
+}
+.mission-strip h2 {
+  margin: 5px 0 0;
+  font-size: 17px;
+}
+.mission-strip p {
+  margin: 0;
+  color: #a8beda;
+  font-size: 12px;
+  line-height: 1.6;
+}
+.mission-strip a {
+  display: grid;
+  place-items: center;
+  width: 37px;
+  height: 37px;
+  border-radius: 50%;
+  color: #0c2540;
+  background: #69dfc4;
+}
+.table-gallery {
+  margin-top: 55px;
+}
+.gallery-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+}
+.gallery-heading h2 {
+  margin: 9px 0 0;
+  color: #fff;
+  font: 700 31px "Playfair Display";
+}
+.game-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px;
+  width: 310px;
+  border-radius: 9px;
+  border: 1px solid #355a7b;
+  background: #0a1c36;
+  color: #8aa5c3;
+}
+.game-search input {
+  width: 100%;
+  padding: 12px 0;
+  color: #fff;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  font-size: 12px;
+}
+.table-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+}
+.table-card {
+  min-height: 220px;
+  padding: 17px;
+  border: 1px solid #25496d;
+  border-radius: 14px;
+  background: linear-gradient(145deg, #112a4a, #0a1934);
+  position: relative;
+}
+.table-card.playable {
+  border-color: #5ed9bd;
+  background: linear-gradient(145deg, #123d4a, #102d4a);
+}
+.table-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #849dbc;
+  font: 9px "DM Mono";
+}
+.table-token {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #1b4961;
+  border: 1px solid #5ee2c5;
+  color: #ffe782;
+  font-size: 20px;
+}
+.table-card h3 {
+  margin: 17px 0 7px;
+  font-size: 16px;
+  color: #f1f8ff;
+}
+.table-card p {
+  margin: 0;
+  color: #9eb4d0;
+  font-size: 12px;
+  line-height: 1.65;
+}
+.table-card a,
+.locked-label {
+  position: absolute;
+  bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #72e2c7;
+  font: 700 10px Manrope;
+  letter-spacing: 0.8px;
+}
+.locked-label {
+  color: #7892ae;
+}
+@media (max-width: 1000px) {
+  .hud-nav {
+    display: none;
+  }
+  .game-map {
+    height: 470px;
+  }
+  .map-copy {
+    max-width: 340px;
+  }
+  .table-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+@media (max-width: 680px) {
+  .app-header {
+    padding: 0 15px;
+  }
+  .hud-level {
+    display: none;
+  }
+  .game-map {
+    height: 570px;
+  }
+  .map-copy {
+    top: 36px;
+    left: 25px;
+    right: 25px;
+    max-width: none;
+  }
+  .quest-button {
+    width: 100%;
+  }
+  .map-tables {
+    top: 250px;
+  }
+  .map-table {
+    transform: scale(0.78);
+    transform-origin: center;
+  }
+  .table-slots {
+    right: 4%;
+    top: 25px;
+  }
+  .table-baccarat {
+    right: 35%;
+    top: 10px;
+  }
+  .table-blackjack {
+    right: 56%;
+    top: 95px;
+  }
+  .table-roulette {
+    right: 17%;
+    top: 130px;
+  }
+  .table-sicbo {
+    right: 4%;
+    bottom: 7px;
+  }
+  .table-mahjong {
+    right: 40%;
+    bottom: 8px;
+  }
+  .map-compass {
+    display: none;
+  }
+  .mission-strip {
+    grid-template-columns: 40px 1fr 38px;
+  }
+  .mission-strip p {
+    display: none;
+  }
+  .gallery-heading {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 18px;
+  }
+  .game-search {
+    width: 100%;
+  }
+  .table-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .safety-pill {
+    font-size: 8px;
+  }
+  .lobby-top {
+    padding-top: 5px;
+  }
+  .player-panel b {
+    font-size: 10px;
+  }
+}
