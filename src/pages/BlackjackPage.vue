@@ -37,6 +37,11 @@ const labels = computed(() =>
         lose: "庄家获胜",
         push: "和 局",
         blackjack: "BLACKJACK!",
+        phaseBetting: "请选择筹码",
+        phasePlayer: "轮到你了",
+        phaseDealer: "庄家补牌中",
+        phaseSettled: "本局结算",
+        shortcuts: "快捷键：1–5 筹码 · H 要牌 · S 停牌 · D 加倍 · P 分牌",
       }
     : {
         balance: "VIRTUAL CHIPS",
@@ -57,6 +62,11 @@ const labels = computed(() =>
         lose: "DEALER WINS",
         push: "PUSH",
         blackjack: "BLACKJACK!",
+        phaseBetting: "PLACE YOUR BET",
+        phasePlayer: "YOUR MOVE",
+        phaseDealer: "DEALER IS PLAYING",
+        phaseSettled: "ROUND COMPLETE",
+        shortcuts: "KEYS: 1–5 CHIPS · H HIT · S STAND · D DOUBLE · P SPLIT",
       },
 );
 
@@ -187,7 +197,13 @@ function advanceTutorial() {
         <BookOpen :size="16" /> {{ isChinese ? "说明书" : "GUIDE" }}
       </button>
     </div>
-    <aside class="arcade-drawer">
+    <button
+      v-if="helpOpen"
+      class="arcade-scrim"
+      :aria-label="isChinese ? '关闭游戏说明' : 'Close game guide'"
+      @click="helpOpen = false"
+    ></button>
+    <aside class="arcade-drawer" :class="{ 'is-open': helpOpen }" :aria-hidden="!helpOpen">
       <button class="drawer-close" @click="helpOpen = false"><X :size="19" /></button>
       <p class="eyebrow">
         <CircleHelp :size="14" /> {{ isChinese ? "游戏中的学习卡" : "IN-GAME LEARNING CARD" }}
