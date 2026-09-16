@@ -68,6 +68,7 @@ const payload = computed(() => ({
 }));
 
 function pushState() {
+  game?.registry.set("casinoAtlasLobbyPayload", payload.value);
   const scene = game?.scene.getScene("casino-lobby") as CasinoLobbyScene | undefined;
   scene?.events.emit("state", payload.value);
 }

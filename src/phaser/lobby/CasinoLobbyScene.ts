@@ -1,4 +1,5 @@
 import Phaser from "phaser";
+import lobbyHallUrl from "../../assets/lobby/casino-play-hall.png";
 
 export interface CasinoLobbyTable {
   id: string;
@@ -20,15 +21,25 @@ export type CasinoLobbyCommand =
   | { type: "navigate"; path: "/learn" | "/learn/randomness" }
   | { type: "locale:toggle" };
 
-const WIDTH = 1280;
-const HEIGHT = 720;
-const tablePositions: Record<string, { x: number; y: number }> = {
-  slots: { x: 214, y: 286 },
-  baccarat: { x: 478, y: 244 },
-  blackjack: { x: 680, y: 414 },
-  roulette: { x: 1018, y: 272 },
-  sicbo: { x: 1008, y: 505 },
-  mahjong: { x: 318, y: 508 },
+const WIDTH = 1672;
+const HEIGHT = 941;
+
+interface TableAnchor {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  shape: "ellipse" | "rounded" | "circle";
+  labelY: number;
+}
+
+const tableAnchors: Record<string, TableAnchor> = {
+  slots: { x: 174, y: 364, width: 322, height: 310, shape: "rounded", labelY: 503 },
+  baccarat: { x: 545, y: 395, width: 250, height: 190, shape: "ellipse", labelY: 500 },
+  blackjack: { x: 840, y: 476, width: 565, height: 312, shape: "ellipse", labelY: 638 },
+  roulette: { x: 1456, y: 322, width: 308, height: 220, shape: "circle", labelY: 449 },
+  sicbo: { x: 1436, y: 520, width: 306, height: 220, shape: "rounded", labelY: 640 },
+  mahjong: { x: 415, y: 520, width: 310, height: 222, shape: "rounded", labelY: 640 },
 };
 
 export class CasinoLobbyScene extends Phaser.Scene {
@@ -39,6 +50,10 @@ export class CasinoLobbyScene extends Phaser.Scene {
 
   constructor() {
     super("casino-lobby");
+  }
+
+  preload() {
+    this.load.image("casino-play-hall", lobbyHallUrl);
   }
 
   create() {
@@ -58,6 +73,7 @@ export class CasinoLobbyScene extends Phaser.Scene {
       this.fitLogicalHall(size.width, size.height),
     );
     this.fitLogicalHall(this.scale.width, this.scale.height);
+    this.payload = this.registry.get("casinoAtlasLobbyPayload") as CasinoLobbyPayload | undefined;
     this.render();
   }
 
@@ -65,98 +81,37 @@ export class CasinoLobbyScene extends Phaser.Scene {
     const zoom = Math.min(viewportWidth / WIDTH, viewportHeight / HEIGHT);
     this.cameras.main.setZoom(zoom);
     this.cameras.main.centerOn(WIDTH / 2, HEIGHT / 2);
-    if (this.payload) this.render();
   }
 
   private paintLobby() {
-    this.children.removeAll(true);
-    const graphics = this.add.graphics();
-    graphics.fillStyle(0x02050c, 1).fillRect(0, 0, WIDTH, HEIGHT);
-    graphics.fillStyle(0x081225, 1).fillRoundedRect(18, 16, WIDTH - 36, HEIGHT - 32, 36);
-    graphics.lineStyle(2, 0x3d506b, 0.88).strokeRoundedRect(18, 16, WIDTH - 36, HEIGHT - 32, 36);
+    this.add.image(0, 0, "casino-play-hall").setOrigin(0).setDisplaySize(WIDTH, HEIGHT);
 
-    graphics.fillStyle(0x130d25, 1).fillRoundedRect(42, 44, WIDTH - 84, 176, 28);
-    graphics.lineStyle(1, 0xd5ae58, 0.5).strokeRoundedRect(42, 44, WIDTH - 84, 176, 28);
-    graphics.fillStyle(0x5d183e, 0.32).fillEllipse(WIDTH / 2, 55, 730, 130);
-    graphics.fillStyle(0x124252, 0.3).fillEllipse(WIDTH / 2, 166, 1090, 146);
+    const vignette = this.add.graphics();
+    vignette.fillStyle(0x020713, 0.1).fillRect(0, 0, WIDTH, HEIGHT);
+    vignette.fillStyle(0x020713, 0.18).fillTriangle(0, 0, 260, 0, 0, HEIGHT);
+    vignette.fillStyle(0x020713, 0.18).fillTriangle(WIDTH, 0, WIDTH - 260, 0, WIDTH, HEIGHT);
 
-    for (let index = 0; index < 10; index += 1) {
-      const x = 84 + index * 123;
-      graphics.fillStyle(index % 2 ? 0x422049 : 0x20365e, 0.55).fillRoundedRect(x, 66, 78, 118, 18);
-      graphics.lineStyle(1, 0xe1c579, 0.28).strokeRoundedRect(x, 66, 78, 118, 18);
-      graphics.fillStyle(0xf0c665, 0.26).fillCircle(x + 39, 91, 3);
-    }
-
-    graphics
-      .fillStyle(0x07101e, 1)
-      .fillTriangle(112, HEIGHT - 32, WIDTH - 112, HEIGHT - 32, WIDTH / 2, 186);
-    graphics
-      .fillStyle(0x153646, 0.9)
-      .fillTriangle(178, HEIGHT - 32, WIDTH - 178, HEIGHT - 32, WIDTH / 2, 192);
-    graphics
-      .lineStyle(2, 0xd2ae5a, 0.56)
-      .strokeTriangle(178, HEIGHT - 32, WIDTH - 178, HEIGHT - 32, WIDTH / 2, 192);
-
-    for (let index = 0; index < 7; index += 1) {
-      const progress = index / 7;
-      const y = 226 + index * 70;
-      const left = Phaser.Math.Linear(WIDTH / 2 - 32, 130, progress);
-      const right = Phaser.Math.Linear(WIDTH / 2 + 32, WIDTH - 130, progress);
-      graphics.lineStyle(1, 0x82e1cf, 0.1 + index * 0.02).lineBetween(left, y, right, y);
-    }
-
-    graphics.fillStyle(0x051019, 0.7).fillRoundedRect(72, 222, 120, 362, 28);
-    graphics.fillStyle(0x051019, 0.7).fillRoundedRect(WIDTH - 192, 222, 120, 362, 28);
-    graphics.lineStyle(1, 0x426c78, 0.45).strokeRoundedRect(72, 222, 120, 362, 28);
-    graphics.lineStyle(1, 0x426c78, 0.45).strokeRoundedRect(WIDTH - 192, 222, 120, 362, 28);
-
-    this.add
-      .text(WIDTH / 2, 76, "CASINO ATLAS", {
-        fontFamily: "Georgia",
-        fontSize: "28px",
-        color: "#fff0b0",
-        fontStyle: "bold",
-        letterSpacing: 6,
-      })
-      .setOrigin(0.5);
-    this.add
-      .text(WIDTH / 2, 111, "THE INTERNATIONAL PLAY HALL", {
-        fontFamily: "Arial",
-        fontSize: "10px",
-        color: "#9fe6d4",
-        letterSpacing: 4.3,
-      })
-      .setOrigin(0.5);
-    this.add
-      .text(WIDTH / 2, 138, "DISCOVER TABLES  ·  LEARN THE ODDS  ·  PLAY WITH VIRTUAL CHIPS", {
-        fontFamily: "Arial",
-        fontSize: "8px",
-        color: "#a9bed4",
-        letterSpacing: 1.5,
-      })
-      .setOrigin(0.5);
-
-    this.createAmbientLights();
+    this.createAmbientSparkles();
     this.tableLayer = this.add.container();
     this.uiLayer = this.add.container();
   }
 
-  private createAmbientLights() {
-    const colors = [0xf3c85e, 0x63e3c4, 0xca699a];
+  private createAmbientSparkles() {
+    const colors = [0xffda72, 0x78f2d3, 0xffffff];
     for (let index = 0; index < 24; index += 1) {
-      const light = this.add.circle(
-        Phaser.Math.Between(52, WIDTH - 52),
-        Phaser.Math.Between(52, HEIGHT - 72),
+      const sparkle = this.add.circle(
+        Phaser.Math.Between(255, WIDTH - 255),
+        Phaser.Math.Between(70, 350),
         Phaser.Math.Between(1, 3),
         colors[index % colors.length],
-        0.4,
+        0.65,
       );
       this.tweens.add({
-        targets: light,
-        alpha: 0.08,
-        scale: 0.5,
-        delay: index * 70,
-        duration: Phaser.Math.Between(1050, 2100),
+        targets: sparkle,
+        alpha: 0.14,
+        scale: 0.4,
+        duration: Phaser.Math.Between(950, 1900),
+        delay: index * 90,
         yoyo: true,
         repeat: -1,
         ease: "Sine.InOut",
@@ -168,366 +123,289 @@ export class CasinoLobbyScene extends Phaser.Scene {
     if (!this.payload || !this.tableLayer || !this.uiLayer) return;
     this.tableLayer.removeAll(true);
     this.uiLayer.removeAll(true);
+    this.payload.tables.forEach((table) => this.drawTableTarget(table));
     this.drawHud(this.payload);
-    this.payload.tables.forEach((table) => this.drawTable(table));
-    this.drawQuestPanel(this.payload);
-    this.drawControls(this.payload);
+    this.drawSelectionPanel(this.payload);
   }
 
-  private drawHud(payload: CasinoLobbyPayload) {
-    const playerPanel = this.add.container(54, 48);
-    const playerBox = this.add.graphics();
-    playerBox.fillStyle(0x07192b, 0.9).fillRoundedRect(0, 0, 254, 55, 14);
-    playerBox.lineStyle(1, 0x537f99, 0.76).strokeRoundedRect(0, 0, 254, 55, 14);
-    playerPanel.add([
-      playerBox,
-      this.add.circle(25, 27, 16, 0x63ddc2, 1),
-      this.add
-        .text(25, 27, "A", {
-          fontFamily: "Georgia",
-          fontSize: "18px",
-          color: "#08223b",
-          fontStyle: "bold",
-        })
-        .setOrigin(0.5),
-      this.add.text(52, 11, payload.labels.profile, {
-        fontFamily: "Arial",
-        fontSize: "8px",
-        color: "#91dccb",
-        letterSpacing: 1.5,
-      }),
-      this.add.text(52, 26, payload.labels.explorer, {
-        fontFamily: "Arial",
-        fontSize: "13px",
-        color: "#f6f8ff",
-        fontStyle: "bold",
-        letterSpacing: 0.8,
-      }),
-      this.add.text(52, 42, `${payload.labels.explored} ${payload.explored}`, {
-        fontFamily: "'DM Mono', monospace",
-        fontSize: "9px",
-        color: "#a9c5dc",
-        letterSpacing: 0.5,
-      }),
-    ]);
-    this.uiLayer.add(playerPanel);
-
-    const virtualPanel = this.add.container(1010, 48);
-    const virtualBox = this.add.graphics();
-    virtualBox.fillStyle(0x07192b, 0.9).fillRoundedRect(0, 0, 216, 55, 14);
-    virtualBox.lineStyle(1, 0x537f99, 0.76).strokeRoundedRect(0, 0, 216, 55, 14);
-    virtualPanel.add([
-      virtualBox,
-      this.add.text(16, 12, payload.labels.safe, {
-        fontFamily: "Arial",
-        fontSize: "8px",
-        color: "#91e2cd",
-        letterSpacing: 1.6,
-      }),
-      this.add.text(16, 29, "100% VIRTUAL", {
-        fontFamily: "'DM Mono', monospace",
-        fontSize: "15px",
-        color: "#fff3b7",
-        fontStyle: "bold",
-      }),
-      this.add
-        .text(190, 30, "◇", { fontFamily: "Arial", fontSize: "20px", color: "#f1c85e" })
-        .setOrigin(0.5),
-    ]);
-    this.uiLayer.add(virtualPanel);
-  }
-
-  private drawTable(table: CasinoLobbyTable) {
-    const position = tablePositions[table.id];
-    if (!position) return;
+  private drawTableTarget(table: CasinoLobbyTable) {
+    const anchor = tableAnchors[table.id];
+    if (!anchor) return;
     const selected = table.id === this.selectedTableId;
     const playable = table.status === "playable";
-    const tableContainer = this.add.container(position.x, position.y);
-    const graphics = this.add.graphics();
-    const width = playable ? 218 : 174;
-    const height = playable ? 132 : 106;
-    const rim = playable ? 0xefd36d : 0x526f82;
-    const felt = playable ? 0x0d6e64 : 0x173b58;
-    const glow = playable ? 0x63e6c4 : 0x5f7897;
+    const container = this.add.container(anchor.x, anchor.y);
 
     if (selected) {
-      graphics
-        .fillStyle(playable ? 0x61e0c6 : 0x8ba2b7, 0.12)
-        .fillEllipse(0, 10, width + 50, height + 44);
-      graphics
-        .lineStyle(2, playable ? 0xffdf77 : 0x9db3c9, 0.86)
-        .strokeEllipse(0, 10, width + 34, height + 24);
-    }
-
-    if (table.id === "roulette") {
-      graphics.fillStyle(0x101a2f, 1).fillCircle(0, 0, 63);
-      graphics.lineStyle(4, rim, 0.9).strokeCircle(0, 0, 63);
-      graphics.fillStyle(0x0c5e51, 1).fillCircle(0, 0, 50);
-      for (let index = 0; index < 14; index += 1) {
-        const start = (Math.PI * 2 * index) / 14;
-        graphics
-          .lineStyle(2, index % 2 ? 0xd04b5e : 0xead76f, 0.8)
-          .lineBetween(0, 0, Math.cos(start) * 48, Math.sin(start) * 48);
-      }
-      graphics.fillStyle(0xe2c15f, 1).fillCircle(0, 0, 9);
-    } else if (table.id === "slots") {
-      graphics.fillStyle(0x192348, 1).fillRoundedRect(-68, -50, 136, 100, 18);
-      graphics.lineStyle(3, rim, 0.92).strokeRoundedRect(-68, -50, 136, 100, 18);
-      for (let index = 0; index < 3; index += 1) {
-        const x = -36 + index * 36;
-        graphics.fillStyle(0xeef4f6, 0.96).fillRoundedRect(x - 13, -20, 26, 42, 5);
-        graphics.lineStyle(1, 0xb6cae1, 1).strokeRoundedRect(x - 13, -20, 26, 42, 5);
-      }
-      graphics.fillStyle(0x64d8c0, 1).fillRoundedRect(64, -23, 18, 46, 8);
-      graphics.fillStyle(0xf0ce68, 1).fillCircle(73, -32, 12);
-    } else if (table.id === "sicbo") {
-      graphics.fillStyle(0x182446, 1).fillRoundedRect(-76, -44, 152, 88, 19);
-      graphics.lineStyle(3, rim, 0.88).strokeRoundedRect(-76, -44, 152, 88, 19);
-      graphics.fillStyle(felt, 1).fillRoundedRect(-62, -32, 124, 64, 14);
-      [-30, 0, 30].forEach((x) => {
-        graphics.fillStyle(0xf2f1e9, 1).fillRoundedRect(x - 12, -12, 24, 24, 5);
-        graphics
-          .fillStyle(0x243552, 1)
-          .fillCircle(x - 5, -5, 2.5)
-          .fillCircle(x + 5, 5, 2.5);
-      });
-    } else if (table.id === "mahjong") {
-      graphics.fillStyle(0x342b46, 1).fillRoundedRect(-76, -44, 152, 88, 19);
-      graphics.lineStyle(3, rim, 0.88).strokeRoundedRect(-76, -44, 152, 88, 19);
-      graphics.fillStyle(felt, 1).fillRoundedRect(-62, -32, 124, 64, 14);
-      for (let index = 0; index < 4; index += 1) {
-        const x = -42 + index * 28;
-        graphics.fillStyle(0xf3f1d8, 1).fillRoundedRect(x, -18, 20, 36, 4);
-        graphics.lineStyle(1, 0x4b6a71, 0.85).strokeRoundedRect(x, -18, 20, 36, 4);
-        graphics.fillStyle(index % 2 ? 0xcf4255 : 0x3bb198, 1).fillCircle(x + 10, 0, 4);
-      }
-    } else {
-      graphics.fillStyle(0x121b34, 1).fillEllipse(0, 4, width, height);
-      graphics.lineStyle(4, rim, 0.92).strokeEllipse(0, 4, width, height);
-      graphics.fillStyle(felt, 1).fillEllipse(0, 1, width - 20, height - 19);
-      graphics.lineStyle(1, glow, 0.52).strokeEllipse(0, 1, width - 42, height - 36);
-      if (table.id === "baccarat") {
-        graphics.lineStyle(1, 0xe2c56a, 0.54).lineBetween(-42, 0, 42, 0);
-        graphics.lineStyle(1, 0xe2c56a, 0.54).lineBetween(0, -24, 0, 24);
-      }
-      if (table.id === "blackjack") {
-        graphics.lineStyle(2, 0xe3c462, 0.6).arc(0, 22, 72, Math.PI + 0.25, Math.PI * 2 - 0.25);
-      }
-    }
-
-    const titleY = table.id === "roulette" ? 80 : height / 2 + 12;
-    tableContainer.add([
-      graphics,
-      this.add
-        .text(0, table.id === "roulette" ? 0 : -8, table.icon, {
-          fontFamily: "Georgia",
-          fontSize: playable ? "33px" : "27px",
-          color: playable ? "#fff1a9" : "#c6d4e5",
-          fontStyle: "bold",
-        })
-        .setOrigin(0.5),
-      this.add
-        .text(0, titleY, table.name, {
-          fontFamily: "Arial",
-          fontSize: playable ? "13px" : "11px",
-          color: playable ? "#f6fff9" : "#d3deea",
-          fontStyle: "bold",
-          letterSpacing: 1,
-        })
-        .setOrigin(0.5),
-      this.add
-        .text(
-          0,
-          titleY + 15,
-          playable
-            ? (this.payload?.labels.playNow ?? "PLAY NOW")
-            : (this.payload?.labels.comingSoon ?? "COMING SOON"),
-          {
-            fontFamily: "Arial",
-            fontSize: "8px",
-            color: playable ? "#8ff0d5" : "#a8b7ca",
-            letterSpacing: 1.3,
-          },
-        )
-        .setOrigin(0.5),
-    ]);
-
-    tableContainer.setSize(width + 30, height + 58);
-    tableContainer.setInteractive(
-      new Phaser.Geom.Rectangle(-(width + 30) / 2, -(height + 30) / 2, width + 30, height + 58),
-      (area, pointerX, pointerY) => area.contains(pointerX, pointerY),
-    );
-    if (tableContainer.input) tableContainer.input.cursor = playable ? "pointer" : "not-allowed";
-    tableContainer.on("pointerover", () => this.selectTable(table.id));
-    tableContainer.on("pointerup", () => this.activateTable(table));
-    this.tableLayer.add(tableContainer);
-
-    if (playable) {
-      const marker = this.add.circle(
-        position.x + width / 2 - 13,
-        position.y - height / 2 + 15,
-        5,
-        0xf4cd62,
-        1,
-      );
-      this.tableLayer.add(marker);
+      const glow = this.add.graphics();
+      this.drawOutline(glow, anchor, playable ? 0x7dffe0 : 0xa8c9e8, playable ? 0.88 : 0.52, 5, 15);
+      this.drawOutline(glow, anchor, playable ? 0xffd56f : 0x86a1c0, playable ? 0.48 : 0.24, 2, 34);
+      container.add(glow);
       this.tweens.add({
-        targets: marker,
-        alpha: 0.25,
-        scale: 1.45,
-        duration: 850,
+        targets: glow,
+        alpha: 0.34,
+        scaleX: 1.045,
+        scaleY: 1.045,
+        duration: 900,
         yoyo: true,
         repeat: -1,
         ease: "Sine.InOut",
       });
     }
+
+    if (selected) {
+      const label = this.add.container(0, anchor.labelY - anchor.y);
+      const labelWidth = Math.max(120, table.name.length * 11 + 55);
+      const labelPanel = this.add.graphics();
+      labelPanel.fillStyle(0x06152a, 0.9).fillRoundedRect(-labelWidth / 2, -16, labelWidth, 32, 16);
+      labelPanel
+        .lineStyle(1, playable ? 0x90f3dc : 0x7e9dbb, 0.9)
+        .strokeRoundedRect(-labelWidth / 2, -16, labelWidth, 32, 16);
+      label.add([
+        labelPanel,
+        this.add
+          .text(0, -4, `${table.icon}  ${table.name}`, {
+            fontFamily: "Arial",
+            fontSize: "12px",
+            color: "#fff4be",
+            fontStyle: "bold",
+            letterSpacing: 1,
+          })
+          .setOrigin(0.5),
+      ]);
+      container.add(label);
+      container.add(
+        this.add
+          .text(
+            0,
+            anchor.labelY - anchor.y + 22,
+            playable
+              ? (this.payload?.labels.playNow ?? "PLAY NOW")
+              : (this.payload?.labels.comingSoon ?? "COMING SOON"),
+            {
+              fontFamily: "Arial",
+              fontSize: "8px",
+              color: playable ? "#8dffe0" : "#bbcadc",
+              fontStyle: "bold",
+              letterSpacing: 1.6,
+            },
+          )
+          .setOrigin(0.5),
+      );
+    }
+
+    const zone = this.add.zone(0, 0, anchor.width, anchor.height);
+    zone.setInteractive({ useHandCursor: playable });
+    zone.on("pointerover", () => this.selectTable(table.id));
+    zone.on("pointerup", () => this.activateTable(table));
+    container.add(zone);
+    this.tableLayer.add(container);
   }
 
-  private drawQuestPanel(payload: CasinoLobbyPayload) {
-    const selected =
-      payload.tables.find((table) => table.id === this.selectedTableId) ?? payload.tables[0];
-    if (!selected) return;
-    const panel = this.add.container(WIDTH / 2, 610);
-    const graphics = this.add.graphics();
-    graphics.fillStyle(0x061629, 0.92).fillRoundedRect(-322, -40, 644, 80, 20);
-    graphics
-      .lineStyle(1, selected.status === "playable" ? 0x76dcc6 : 0x526d85, 0.8)
-      .strokeRoundedRect(-322, -40, 644, 80, 20);
-    const playable = selected.status === "playable";
-    panel.add([
-      graphics,
-      this.add.text(-293, -20, playable ? payload.labels.featuredQuest : payload.labels.hallTable, {
+  private drawOutline(
+    graphics: Phaser.GameObjects.Graphics,
+    anchor: TableAnchor,
+    color: number,
+    alpha: number,
+    lineWidth: number,
+    padding: number,
+  ) {
+    graphics.lineStyle(lineWidth, color, alpha);
+    if (anchor.shape === "ellipse") {
+      graphics.strokeEllipse(0, 0, anchor.width + padding, anchor.height + padding);
+      return;
+    }
+    if (anchor.shape === "circle") {
+      graphics.strokeCircle(0, 0, Math.max(anchor.width, anchor.height) / 2 + padding / 2);
+      return;
+    }
+    graphics.strokeRoundedRect(
+      -(anchor.width + padding) / 2,
+      -(anchor.height + padding) / 2,
+      anchor.width + padding,
+      anchor.height + padding,
+      24,
+    );
+  }
+
+  private drawHud(payload: CasinoLobbyPayload) {
+    const profile = this.add.container(52, 20);
+    profile.add([
+      this.add.text(74, 20, payload.labels.profile, {
         fontFamily: "Arial",
-        fontSize: "8px",
-        color: playable ? "#9ae7d4" : "#a8bdd2",
-        letterSpacing: 1.6,
+        fontSize: "9px",
+        color: "#b8f4e2",
+        fontStyle: "bold",
+        letterSpacing: 1.2,
       }),
-      this.add.text(-293, 0, selected.name, {
+      this.add.text(74, 36, payload.labels.explorer, {
         fontFamily: "Georgia",
-        fontSize: "21px",
-        color: playable ? "#fff0a6" : "#e7edf8",
+        fontSize: "13px",
+        color: "#f7f0d1",
         fontStyle: "bold",
       }),
-      this.add.text(-115, -11, selected.description, {
-        fontFamily: "Arial",
-        fontSize: "11px",
-        color: "#bbcee0",
-        wordWrap: { width: 276 },
-      }),
-      this.add.text(-115, 17, `${payload.labels.edge} ${selected.houseEdge}`, {
+      this.add.text(74, 52, `${payload.labels.explored} ${payload.explored}`, {
         fontFamily: "'DM Mono', monospace",
         fontSize: "9px",
-        color: "#7edcc5",
-        letterSpacing: 0.7,
+        color: "#a9c8db",
+        letterSpacing: 0.6,
       }),
     ]);
-    this.uiLayer.add(panel);
-    this.canvasButton(
-      900,
-      588,
-      166,
-      44,
-      playable ? payload.labels.enterTable : payload.labels.comingSoon,
-      () => this.activateTable(selected),
-      playable,
-      playable ? "ENTER" : undefined,
-    );
-  }
+    this.uiLayer.add(profile);
 
-  private drawControls(payload: CasinoLobbyPayload) {
-    this.canvasButton(
-      56,
-      660,
-      132,
-      32,
-      payload.labels.learn,
-      () => this.emit({ type: "navigate", path: "/learn" }),
-      true,
-      "L",
-    );
-    this.canvasButton(
-      198,
-      660,
-      132,
-      32,
-      payload.labels.lab,
-      () => this.emit({ type: "navigate", path: "/learn/randomness" }),
-      true,
-      "R",
-    );
-    this.canvasButton(
-      1090,
-      660,
-      136,
-      32,
-      payload.labels.language,
-      () => this.emit({ type: "locale:toggle" }),
-      true,
-      "Z",
-    );
-    this.uiLayer.add(
+    const wallet = this.add.container(1374, 20);
+    wallet.add([
+      this.add.text(74, 20, payload.labels.safe, {
+        fontFamily: "Arial",
+        fontSize: "9px",
+        color: "#b8f4e2",
+        fontStyle: "bold",
+        letterSpacing: 1.2,
+      }),
+      this.add.text(74, 46, "10,000", {
+        fontFamily: "Georgia",
+        fontSize: "23px",
+        color: "#fff0ab",
+        fontStyle: "bold",
+      }),
       this.add
-        .text(WIDTH / 2, 681, payload.labels.navigationHint, {
+        .text(276, 42, "＋", {
           fontFamily: "Arial",
-          fontSize: "9px",
-          color: "#81aabd",
-          letterSpacing: 1.3,
+          fontSize: "24px",
+          color: "#d9effc",
+          fontStyle: "bold",
         })
         .setOrigin(0.5),
-    );
+    ]);
+    this.uiLayer.add(wallet);
+
+    this.createHudHotspot(18, 22, 258, 78, () => this.emit({ type: "navigate", path: "/learn" }));
+    this.createHudHotspot(1370, 22, 292, 78, () => this.emit({ type: "locale:toggle" }));
   }
 
-  private canvasButton(
+  private createHudHotspot(
     x: number,
     y: number,
     width: number,
     height: number,
-    label: string,
     action: () => void,
-    enabled: boolean,
-    shortcut?: string,
   ) {
-    const button = this.add.container(x, y);
-    const graphics = this.add.graphics();
-    graphics.fillStyle(enabled ? 0x0b2943 : 0x142238, 1).fillRoundedRect(0, 0, width, height, 11);
-    graphics
-      .lineStyle(1, enabled ? 0x5d96a9 : 0x38536b, 1)
-      .strokeRoundedRect(0, 0, width, height, 11);
-    button.add([
-      graphics,
+    const hotspot = this.add
+      .zone(x + width / 2, y + height / 2, width, height)
+      .setInteractive({ useHandCursor: true });
+    hotspot.on("pointerup", action);
+    this.uiLayer.add(hotspot);
+  }
+
+  private drawSelectionPanel(payload: CasinoLobbyPayload) {
+    const tables = payload.tables;
+    const selected = tables.find((table) => table.id === this.selectedTableId) ?? tables[0];
+    if (!selected) return;
+    const playable = selected.status === "playable";
+    const panel = this.add.container(636, 794);
+    const thumbnail = this.add.graphics();
+    thumbnail.fillStyle(0x0a2940, 0.92).fillRoundedRect(0, 0, 82, 82, 18);
+    thumbnail.lineStyle(2, playable ? 0x8cf2d8 : 0x7a92ae, 0.9).strokeRoundedRect(0, 0, 82, 82, 18);
+    thumbnail.fillStyle(playable ? 0x117d69 : 0x31445d, 1).fillEllipse(41, 42, 58, 38);
+    panel.add([
+      thumbnail,
       this.add
-        .text(width / 2, height / 2, label, {
-          fontFamily: "Arial",
-          fontSize: "9px",
-          color: enabled ? "#dff8ef" : "#77889b",
+        .text(41, 41, selected.icon, {
+          fontFamily: "Georgia",
+          fontSize: "29px",
+          color: "#fff2b1",
           fontStyle: "bold",
-          letterSpacing: 1.1,
         })
         .setOrigin(0.5),
     ]);
-    if (shortcut) {
-      button.add(
-        this.add
-          .text(width - 12, height / 2, shortcut, {
-            fontFamily: "'DM Mono', monospace",
-            fontSize: "8px",
-            color: "#7bdcc3",
-          })
-          .setOrigin(0.5),
-      );
-    }
-    if (enabled) {
-      button.setSize(width, height);
-      button.setInteractive(
-        new Phaser.Geom.Rectangle(0, 0, width, height),
-        (area, pointerX, pointerY) => area.contains(pointerX, pointerY),
-      );
-      if (button.input) button.input.cursor = "pointer";
-      button.on("pointerover", () => button.setScale(1.04));
+    this.uiLayer.add(panel);
+
+    const detail = this.add.container(732, 807);
+    detail.add([
+      this.add.text(0, 0, playable ? payload.labels.featuredQuest : payload.labels.hallTable, {
+        fontFamily: "Arial",
+        fontSize: "9px",
+        color: playable ? "#96f0d8" : "#bad1e7",
+        fontStyle: "bold",
+        letterSpacing: 1.4,
+      }),
+      this.add.text(0, 24, selected.name, {
+        fontFamily: "Georgia",
+        fontSize: "25px",
+        color: "#fff0ad",
+        fontStyle: "bold",
+      }),
+      this.add.text(0, 50, `${payload.labels.edge} ${selected.houseEdge}`, {
+        fontFamily: "'DM Mono', monospace",
+        fontSize: "9px",
+        color: "#80e5ca",
+        letterSpacing: 0.8,
+      }),
+    ]);
+    this.uiLayer.add(detail);
+
+    this.drawMainAction(selected, payload);
+    this.drawCarouselDots(tables);
+    this.uiLayer.add(
+      this.add
+        .text(WIDTH / 2, 907, payload.labels.navigationHint, {
+          fontFamily: "Arial",
+          fontSize: "9px",
+          color: "#c5dceb",
+          letterSpacing: 1.25,
+        })
+        .setOrigin(0.5),
+    );
+  }
+
+  private drawMainAction(selected: CasinoLobbyTable, payload: CasinoLobbyPayload) {
+    const playable = selected.status === "playable";
+    const button = this.add.container(943, 815);
+    const panel = this.add.graphics();
+    panel.fillStyle(playable ? 0x4fe3c6 : 0x2d4058, 1).fillRoundedRect(0, 0, 212, 62, 26);
+    panel.lineStyle(2, playable ? 0xd8fff3 : 0x6f8aa6, 1).strokeRoundedRect(0, 0, 212, 62, 26);
+    button.add([
+      panel,
+      this.add
+        .text(106, 23, playable ? payload.labels.enterTable : payload.labels.comingSoon, {
+          fontFamily: "Arial",
+          fontSize: "11px",
+          color: playable ? "#072947" : "#b8c7d8",
+          fontStyle: "bold",
+          letterSpacing: 1.4,
+        })
+        .setOrigin(0.5),
+      this.add
+        .text(106, 43, playable ? "ENTER" : "LOCKED", {
+          fontFamily: "'DM Mono', monospace",
+          fontSize: "8px",
+          color: playable ? "#16576c" : "#8fa3b9",
+          letterSpacing: 1.4,
+        })
+        .setOrigin(0.5),
+    ]);
+    if (playable) {
+      button.setSize(212, 62).setInteractive({ useHandCursor: true });
+      button.on("pointerover", () => button.setScale(1.035));
       button.on("pointerout", () => button.setScale(1));
-      button.on("pointerup", action);
+      button.on("pointerup", () => this.activateTable(selected));
     }
     this.uiLayer.add(button);
+  }
+
+  private drawCarouselDots(tables: CasinoLobbyTable[]) {
+    const selectedIndex = tables.findIndex((table) => table.id === this.selectedTableId);
+    tables.forEach((table, index) => {
+      const dot = this.add.circle(
+        863 + index * 25,
+        886,
+        index === selectedIndex ? 7 : 5,
+        index === selectedIndex ? 0x71e6cb : 0x899ab5,
+        index === selectedIndex ? 1 : 0.68,
+      );
+      dot.setInteractive({ useHandCursor: true });
+      dot.on("pointerup", () => this.selectTable(table.id));
+      this.uiLayer.add(dot);
+    });
   }
 
   private selectTable(id: string) {
@@ -538,32 +416,32 @@ export class CasinoLobbyScene extends Phaser.Scene {
 
   private activateTable(table: CasinoLobbyTable) {
     this.selectedTableId = table.id;
-    this.render();
     if (table.status === "playable") {
       this.emit({ type: "table:open", id: table.id });
       return;
     }
+    this.render();
     this.showLockedNotice();
   }
 
   private showLockedNotice() {
     const message = this.add
-      .text(WIDTH / 2, 556, this.payload?.labels.lockedNotice ?? "THIS TABLE IS BEING PREPARED", {
+      .text(WIDTH / 2, 750, this.payload?.labels.lockedNotice ?? "THIS TABLE IS BEING PREPARED", {
         fontFamily: "Arial",
         fontSize: "11px",
-        color: "#d6e2ef",
+        color: "#e6f3ff",
         fontStyle: "bold",
-        letterSpacing: 1.6,
+        letterSpacing: 1.3,
       })
       .setOrigin(0.5)
       .setAlpha(0)
-      .setScale(0.8);
+      .setScale(0.84);
     this.uiLayer.add(message);
     this.tweens.add({
       targets: message,
       alpha: 1,
       scale: 1,
-      y: 544,
+      y: 738,
       duration: 220,
       yoyo: true,
       hold: 900,
