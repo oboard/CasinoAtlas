@@ -359,14 +359,14 @@ export class CasinoLobbyScene extends Phaser.Scene {
 
   private drawMainAction(selected: CasinoLobbyTable, payload: CasinoLobbyPayload) {
     const playable = selected.status === "playable";
-    const button = this.add.container(943, 815);
+    const button = this.add.container(943 + 106, 815 + 31);
     const panel = this.add.graphics();
-    panel.fillStyle(playable ? 0x4fe3c6 : 0x2d4058, 1).fillRoundedRect(0, 0, 212, 62, 26);
-    panel.lineStyle(2, playable ? 0xd8fff3 : 0x6f8aa6, 1).strokeRoundedRect(0, 0, 212, 62, 26);
+    panel.fillStyle(playable ? 0x4fe3c6 : 0x2d4058, 1).fillRoundedRect(-106, -31, 212, 62, 26);
+    panel.lineStyle(2, playable ? 0xd8fff3 : 0x6f8aa6, 1).strokeRoundedRect(-106, -31, 212, 62, 26);
     button.add([
       panel,
       this.add
-        .text(106, 23, playable ? payload.labels.enterTable : payload.labels.comingSoon, {
+        .text(0, -8, playable ? payload.labels.enterTable : payload.labels.comingSoon, {
           fontFamily: "Arial",
           fontSize: "11px",
           color: playable ? "#072947" : "#b8c7d8",
@@ -375,7 +375,7 @@ export class CasinoLobbyScene extends Phaser.Scene {
         })
         .setOrigin(0.5),
       this.add
-        .text(106, 43, playable ? "ENTER" : "LOCKED", {
+        .text(0, 12, playable ? "ENTER" : "LOCKED", {
           fontFamily: "'DM Mono', monospace",
           fontSize: "8px",
           color: playable ? "#16576c" : "#8fa3b9",

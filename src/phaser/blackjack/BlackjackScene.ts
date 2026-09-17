@@ -597,17 +597,19 @@ export class BlackjackScene extends Phaser.Scene {
     style: "main" | "outline" | "small",
     shortcut?: string,
   ) {
-    const button = this.add.container(x, y);
+    const button = this.add.container(x + width / 2, y + height / 2);
     const graphics = this.add.graphics();
     const main = style === "main";
     const fill = enabled ? (main ? 0x57d8bc : 0x0c2944) : 0x122239;
     const stroke = enabled ? (main ? 0xb4f7e5 : 0x6586a3) : 0x2d465c;
-    graphics.fillStyle(fill, 1).fillRoundedRect(0, 0, width, height, style === "small" ? 10 : 14);
+    graphics
+      .fillStyle(fill, 1)
+      .fillRoundedRect(-width / 2, -height / 2, width, height, style === "small" ? 10 : 14);
     graphics
       .lineStyle(2, stroke, 1)
-      .strokeRoundedRect(0, 0, width, height, style === "small" ? 10 : 14);
+      .strokeRoundedRect(-width / 2, -height / 2, width, height, style === "small" ? 10 : 14);
     const labelText = this.add
-      .text(width / 2, shortcut ? height / 2 - 5 : height / 2, label, {
+      .text(0, shortcut ? -5 : 0, label, {
         fontFamily: "Arial",
         fontSize: style === "small" ? "10px" : "13px",
         color: enabled ? (main ? "#062338" : "#e8f7ff") : "#60778d",
@@ -619,7 +621,7 @@ export class BlackjackScene extends Phaser.Scene {
     if (shortcut) {
       button.add(
         this.add
-          .text(width / 2, height - 12, shortcut, {
+          .text(0, height / 2 - 12, shortcut, {
             fontFamily: "'DM Mono', monospace",
             fontSize: "8px",
             color: enabled ? (main ? "#165062" : "#87adc9") : "#536a7c",
@@ -629,12 +631,7 @@ export class BlackjackScene extends Phaser.Scene {
       );
     }
     if (enabled) {
-      button.setSize(width, height);
-      button.setInteractive(
-        new Phaser.Geom.Rectangle(0, 0, width, height),
-        (area, pointerX, pointerY) => area.contains(pointerX, pointerY),
-      );
-      if (button.input) button.input.cursor = "pointer";
+      button.setSize(width, height).setInteractive({ useHandCursor: true });
       button.on("pointerover", () => button.setScale(1.03));
       button.on("pointerout", () => button.setScale(1));
       button.on("pointerdown", () => button.setScale(0.97));

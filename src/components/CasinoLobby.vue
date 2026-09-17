@@ -5,12 +5,14 @@ import { useRouter } from "vue-router";
 import { games } from "../data/games";
 import { isChinese, locale, setLocale } from "../i18n";
 import { CasinoLobbyScene, type CasinoLobbyCommand } from "../phaser/lobby/CasinoLobbyScene";
+import { createHighDensityGame } from "../phaser/core/createHighDensityGame";
 import { useCasinoStore } from "../stores/casino";
 
 const host = ref<HTMLDivElement>();
 const router = useRouter();
 const store = useCasinoStore();
 let game: Phaser.Game | undefined;
+let destroyGame: (() => void) | undefined;
 
 const labels = computed(() =>
   isChinese.value
@@ -86,22 +88,22 @@ function handle(command: CasinoLobbyCommand) {
 }
 
 onMounted(() => {
-  game = new Phaser.Game({
+  if (!host.value) return;
+
+  const highDensityGame = createHighDensityGame(host.value, {
     type: Phaser.AUTO,
-    parent: host.value,
-    width: "100%",
-    height: "100%",
     backgroundColor: "#02050c",
     scene: CasinoLobbyScene,
-    scale: { mode: Phaser.Scale.RESIZE, autoCenter: Phaser.Scale.CENTER_BOTH },
     render: { antialias: true, antialiasGL: true, roundPixels: true, pixelArt: false },
   });
+  game = highDensityGame.game;
+  destroyGame = () => highDensityGame.destroy();
   game.registry.set("casinoAtlasLobbyAction", (command: CasinoLobbyCommand) => handle(command));
   window.setTimeout(pushState, 40);
 });
 
 watch(payload, pushState, { deep: true });
-onBeforeUnmount(() => game?.destroy(true));
+onBeforeUnmount(() => destroyGame?.());
 </script>
 
 <template>
